@@ -105,66 +105,63 @@
 
     <form id="impactForm">
       <label for="url">URL del perfil que deseas medir</label>
-      <input type="url" id="url" name="url" placeholder="https://instagram.com/tuusuario" required />
+      <input type="url" id="url" name="url" placeholder="https://instagram.com/usuario" required />
 
-      <label for="posts">¿Cuántas publicaciones haces al mes?</label>
-      <input type="number" id="posts" name="posts" required />
+      <label for="totalPosts">¿Cuántas publicaciones has hecho en Instagram desde que creaste tu cuenta?</label>
+<input type="number" id="totalPosts" name="totalPosts" placeholder="Ej: 350" required />
 
-      <label for="type">¿Qué tipo de contenido publicas?</label>
-      <select id="type" name="type">
-        <option value="image">Solo imágenes</option>
-        <option value="video">Solo videos</option>
-        <option value="mixed">Mixto</option>
-      </select>
+<label for="igTime">¿Cuánto tiempo (en minutos) pasas viendo Instagram al día?</label>
+<input type="number" id="igTime" name="igTime" placeholder="Ej: 45" required />
 
-      <label for="duration">Duración promedio (en segundos, si aplicable)</label>
-      <input type="number" id="duration" name="duration" value="30" />
+<label for="ttTime">¿Cuántos minutos al día pasas en TikTok?</label>
+<input type="number" id="ttTime" name="ttTime" placeholder="Ej: 60" required />
 
-      <button type="submit">Calcular Impact Score</button>
-    </form>
-
-    <div id="result"></div>
-  </div>
+<button type="submit">Calcular mi huella digital</button>
 
   <script>
-    document.getElementById('impactForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+   <script>
+  document.getElementById('impactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-      const url = document.getElementById('url').value;
-      const posts = parseInt(document.getElementById('posts').value);
-      const type = document.getElementById('type').value;
-      const duration = parseInt(document.getElementById('duration').value);
+    const totalPosts = parseInt(document.getElementById('totalPosts').value);
+    const igTime = parseInt(document.getElementById('igTime').value);
+    const ttTime = parseInt(document.getElementById('ttTime').value);
 
-      let co2_per_post = 0.04; // imágenes
+    const co2Posts = totalPosts * 0.001; // 1 gramo por post
+    const co2Ig = igTime * 1.5 * 31 / 1000; // min x gr x 31 días => en kg
+    const co2Tt = ttTime * 2.65 * 31 / 1000;
 
-      if (type === 'video') {
-        co2_per_post = 0.15 * (duration / 60); // videos
-      } else if (type === 'mixed') {
-        co2_per_post = (0.04 + 0.15 * (duration / 60)) / 2;
-      }
+    const totalCo2 = +(co2Posts + co2Ig + co2Tt).toFixed(2); // en kg
 
-      const total = +(posts * co2_per_post).toFixed(2);
+    let level = '';
+    let className = '';
+    let referencia = '';
 
-      let level = '';
-      let className = '';
+    if (totalCo2 < 1) {
+      level = 'bajo';
+      className = 'bajo';
+      referencia = 'equivale a cargar tu teléfono unas 120 veces';
+    } else if (totalCo2 >= 1 && totalCo2 <= 4) {
+      level = 'medio';
+      className = 'medio';
+      referencia = 'equivale a 16 horas de auto en ciudad';
+    } else {
+      level = 'alto';
+      className = 'alto';
+      referencia = 'equivale a un vuelo nacional corto';
+    }
 
-      if (total < 5) {
-        level = 'Impacto Bajo';
-        className = 'bajo';
-      } else if (total < 10) {
-        level = 'Impacto Medio';
-        className = 'medio';
-      } else {
-        level = 'Impacto Alto';
-        className = 'alto';
-      }
+    document.getElementById('result').innerHTML = `
+      <h3>Tu Impact Score™ mensual estimado es:</h3>
+      <p class="${className}">${totalCo2} kg de CO₂</p>
+      <p>Esto representa un impacto <strong class="${className}">${level}</strong>, según criterios de <em>The Shift Project</em> y <em>GreenIT.fr</em>.</p>
+      <p>Referencia: ${referencia}.</p>
+      <p style="font-size:14px; color:#999;">*Este cálculo es una estimación mínima de tu actividad en Instagram y TikTok. No considera otras redes, contenido subido, ni aplicaciones adicionales.</p>
 
-      document.getElementById('result').innerHTML = `
-        <p><strong>🌐 Perfil analizado:</strong> <a href="${url}" target="_blank">${url}</a></p>
-        <p>♻️ Tu Impact Score estimado este mes es de <strong>${total} kg de CO₂</strong></p>
-        <p class="${className}">${level}</p>
-      `;
-    });
-  </script>
-</body>
-</html>
+      <button onclick="window.location.href='informe.html'" style="background-color:#00796b; margin-top:20px;">Descargar informe premium con estrategias ($30 USD)</button>
+      <button onclick="window.location.href='https://mentoría.com/inscripcion'" style="background-color:#4e342e; margin-top:10px;">Inscríbete a la mentoría + certificación con precio especial</button>
+    `;
+  });
+</script>
+
+
